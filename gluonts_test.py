@@ -24,8 +24,8 @@ train_ratio = 0.6
 
 
 def init_data():
-    url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
-    df = pd.read_csv(url, header=0, index_col=0)
+    # url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
+    df = pd.read_csv('data/period_trend.csv', header=0, index_col=0)
     # df[:].plot(linewidth=2)
     # plt.grid(which='both')
     # plt.show()
@@ -47,7 +47,7 @@ training_data = ListDataset(
 )
 
 def init_model():
-    epochs = 10
+    epochs = None
     context = 'cpu'
     if args.epochs is not None:
         epochs = args.epochs
