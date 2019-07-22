@@ -26,33 +26,29 @@ def init_data():
     # df[:].plot(linewidth=2)
     # plt.grid(which='both')
     # plt.show()
-
     list_values = []
-
     for item in df.value:
         list_values.append(item)
-
     return df, list_values
-
-df, list_values = init_data()
 
 # Make path when path does not exist
 if not os.path.exists("models"):
     os.makedirs("models")
+
+
+df, list_values = init_data()
 
 training_data = ListDataset(
     [{"start": df.index[0], "target": list_values[:int(len(list_values)*train_ratio)]}],
     freq = "5min"
 )
 
-
 def init_model():
-    my_trainer = None
+    epochs = 10
     if args.epochs is not None:
-        my_trainer = Trainer(epochs=args.epochs, ctx='gpu')
-    else:
-        my_trainer = Trainer(epochs=10, ctx='gpu')
+        epochs = args.epochs
 
+    my_trainer = Trainer(epochs=epochs, ctx='gpu')
     estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=my_trainer)
     
     predictor = None
@@ -61,7 +57,6 @@ def init_model():
         predictor.serialize(Path("models/"))
     else:
         predictor = Predictor.deserialize(Path("models/"))
-
     return predictor
 
 
