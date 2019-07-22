@@ -18,6 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 from os import path
+import argparse
 
 import numpy
 import tensorflow as tf
@@ -153,25 +154,40 @@ class _LSTMModel(ts_model.SequentialTimeSeriesModel):
 
 if __name__ == '__main__':
     tf.logging.set_verbosity(tf.logging.INFO)
-    csv_file_name = path.join("./data/multivariate_periods.csv")
+    parser = argparse.ArgumentParser(description=None)
+
+    parser.add_argument('--prediction', default=1000, type=int, help='prediction length')
+    parser.add_argument('--steps', type=int, default=2000, help='num training steps')
+    parser.add_argument('--window_size', type=int, default=32, help='window size')
+    args = parser.parse_args()
+
+    training_steps = args.steps # Default is 2000
+    prediction = args.prediction # Default is 100
+    window_size = args.window_size # Default is 32
+
+
+    csv_file_name = path.join("period_trend.txt")
+
     reader = tf.contrib.timeseries.CSVReader(
         csv_file_name,
         column_names=((tf.contrib.timeseries.TrainEvalFeatures.TIMES,)
-                        + (tf.contrib.timeseries.TrainEvalFeatures.VALUES,) * 5))
+                        + (tf.contrib.timeseries.TrainEvalFeatures.VALUES,) * 1))
+    
     train_input_fn = tf.contrib.timeseries.RandomWindowInputFn(
-        reader, batch_size=4, window_size=32)
+        reader, batch_size=4, window_size=window_size)
 
     estimator = ts_estimators.TimeSeriesRegressor(
-        model=_LSTMModel(num_features=5, num_units=128),
-        optimizer=tf.train.AdamOptimizer(0.001))
+        model=_LSTMModel(num_features=1, num_units=128),
+        optimizer=tf.train.AdamOptimizer(0.001),
+        model_dir='model/')
 
-    estimator.train(input_fn=train_input_fn, steps=200)
+    estimator.train(input_fn=train_input_fn, steps=training_steps)
     evaluation_input_fn = tf.contrib.timeseries.WholeDatasetInputFn(reader)
     evaluation = estimator.evaluate(input_fn=evaluation_input_fn, steps=1)
     # Predict starting after the evaluation
     (predictions,) = tuple(estimator.predict(
         input_fn=tf.contrib.timeseries.predict_continuation_input_fn(
-            evaluation, steps=100)))
+            evaluation, steps=prediction)))
 
     observed_times = evaluation["times"][0]
     observed = evaluation["observed"][0, :, :]
