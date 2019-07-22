@@ -156,7 +156,7 @@ if __name__ == '__main__':
     tf.logging.set_verbosity(tf.logging.INFO)
     parser = argparse.ArgumentParser(description=None)
 
-    parser.add_argument('--prediction', default=1000, type=int, help='prediction length')
+    parser.add_argument('--prediction', default=200, type=int, help='prediction length')
     parser.add_argument('--steps', type=int, default=2000, help='num training steps')
     parser.add_argument('--window_size', type=int, default=32, help='window size')
     args = parser.parse_args()
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     window_size = args.window_size # Default is 32
 
 
-    csv_file_name = path.join("period_trend.txt")
+    csv_file_name = path.join("art_daily_perfect_square_wave_edited.csv")
 
     reader = tf.contrib.timeseries.CSVReader(
         csv_file_name,
