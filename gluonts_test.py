@@ -12,23 +12,31 @@ import os
 parser = argparse.ArgumentParser(description=None)
 parser.add_argument('--prediction', default=12, type=int, help='prediction length')
 parser.add_argument('--train', action='store_true', help='enter training mode')
+parser.add_argument('--epochs', default=10, type=int, help='num epochs')
+
 args = parser.parse_args()
 
 
 train_ratio = 0.6
 
-url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
-df = pd.read_csv(url, header=0, index_col=0)
-# df[:].plot(linewidth=2)
-# plt.grid(which='both')
-# plt.show()
 
-list_values = []
+def init_data():
+    url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
+    df = pd.read_csv(url, header=0, index_col=0)
+    # df[:].plot(linewidth=2)
+    # plt.grid(which='both')
+    # plt.show()
 
-for item in df.value:
-    list_values.append(item)
+    list_values = []
 
+    for item in df.value:
+        list_values.append(item)
 
+    return df, list_values
+
+df, list_values = init_data()
+
+# Make path when path does not exist
 if not os.path.exists("models"):
     os.makedirs("models")
 
@@ -38,14 +46,27 @@ training_data = ListDataset(
 )
 
 
-estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=Trainer(epochs=10))
-predictor = None
-if args.train:
-    predictor = estimator.train(training_data=training_data)
-    predictor.serialize(Path("models/"))
-else:
-    predictor = Predictor.deserialize(Path("models/"))
+def init_model():
+    my_trainer = None
+    if args.epochs is not None:
+        my_trainer = Trainer(epochs=args.epochs)
+    estimator = None
+    if my_trainer is None:
+        estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction)
+    else:
+        estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=Trainer(epochs=10))
+    
+    predictor = None
+    if args.train:
+        predictor = estimator.train(training_data=training_data)
+        predictor.serialize(Path("models/"))
+    else:
+        predictor = Predictor.deserialize(Path("models/"))
 
+    return predictor
+
+
+predictor = init_model()
 
 test_data = ListDataset(
     [{"start": df.index[0], "target": list_values[int(len(list_values)*train_ratio):]}],
