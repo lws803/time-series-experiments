@@ -49,12 +49,13 @@ training_data = ListDataset(
 def init_model():
     my_trainer = None
     if args.epochs is not None:
-        my_trainer = Trainer(epochs=args.epochs)
+        my_trainer = Trainer(epochs=args.epochs, ctx='gpu')
+
     estimator = None
     if my_trainer is None:
         estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction)
     else:
-        estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=Trainer(epochs=10))
+        estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=Trainer(epochs=10, ctx='gpu'))
     
     predictor = None
     if args.train:
