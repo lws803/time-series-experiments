@@ -6,13 +6,14 @@ from gluonts.dataset.util import to_pandas
 import matplotlib.pyplot as plt
 import argparse
 from pathlib import Path
-from gluonts.model.predictor import Predictor
+from gluonts.model.predictor import Predictor, GluonPredictor
 import os
 
 parser = argparse.ArgumentParser(description=None)
 parser.add_argument('--prediction', default=12, type=int, help='prediction length')
 parser.add_argument('--train', action='store_true', help='enter training mode')
 parser.add_argument('--epochs', type=int, help='num epochs')
+parser.add_argument('--gpu', action='store_true', help='gpu mode')
 
 args = parser.parse_args()
 
@@ -45,10 +46,13 @@ training_data = ListDataset(
 
 def init_model():
     epochs = 10
+    context = 'cpu'
     if args.epochs is not None:
         epochs = args.epochs
+    if args.gpu:
+        context = 'gpu'
 
-    my_trainer = Trainer(epochs=epochs, ctx='gpu')
+    my_trainer = Trainer(epochs=epochs, ctx=context)
     estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=my_trainer)
     
     predictor = None
