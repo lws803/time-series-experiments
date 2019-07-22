@@ -9,6 +9,7 @@ from pathlib import Path
 from gluonts.model.predictor import Predictor, RepresentableBlockPredictor
 from gluonts.evaluation.backtest import make_evaluation_predictions
 import os
+import mxnet as mx
 
 parser = argparse.ArgumentParser(description=None)
 parser.add_argument('--prediction', default=12, type=int, help='prediction length')
@@ -63,6 +64,7 @@ def init_model():
     else:
         # predictor = Predictor.deserialize(Path("models/"))
         predictor = RepresentableBlockPredictor.deserialize(Path("models/"))
+        predictor.ctx = mx.Context('cpu')
     return predictor
 
 
