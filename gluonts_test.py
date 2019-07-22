@@ -24,8 +24,8 @@ train_ratio = 0.6
 
 
 def init_data():
-    # url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
-    df = pd.read_csv('data/period_trend.csv', header=0, index_col=0)
+    url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
+    df = pd.read_csv(url, header=0, index_col=0)
     # df[:].plot(linewidth=2)
     # plt.grid(which='both')
     # plt.show()
@@ -54,11 +54,11 @@ def init_model():
     if args.gpu:
         context = 'gpu'
 
-    my_trainer = Trainer(epochs=epochs, ctx=context)
-    estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=my_trainer)
-    
     predictor = None
     if args.train:
+        my_trainer = Trainer(epochs=epochs, ctx=context) # TODO: Find a way to make it such that we do not set epoch when there is no need to
+        estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=my_trainer)
+
         predictor = estimator.train(training_data=training_data)
         predictor.serialize(Path("models/"))
     else:
