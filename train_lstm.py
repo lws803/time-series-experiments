@@ -14,6 +14,7 @@ from tensorflow.contrib.timeseries.python.timeseries import  NumpyReader
 import matplotlib
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 class _LSTMModel(ts_model.SequentialTimeSeriesModel):
@@ -140,11 +141,21 @@ class _LSTMModel(ts_model.SequentialTimeSeriesModel):
 
 
 if __name__ == '__main__':
-    tf.logging.set_verbosity(tf.logging.INFO)
-    x = np.array(range(1000))
-    noise = np.random.uniform(-0.2, 0.2, 1000)
-    y = np.sin(np.pi * x / 50 ) + np.cos(np.pi * x / 50) + np.sin(np.pi * x / 25) + noise
+    url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
+    df = pd.read_csv(url, header=0, index_col=0)
+    list_values = []
+    for item in df.value:
+        list_values.append(item)
 
+
+    tf.logging.set_verbosity(tf.logging.INFO)
+    # x = np.array(range(1000))
+    # noise = np.random.uniform(-0.2, 0.2, 1000)
+    # y = np.sin(np.pi * x / 50 ) + np.cos(np.pi * x / 50) + np.sin(np.pi * x / 25) + noise
+    
+    x = np.array(range(len(list_values)))
+    y = np.array(list_values)
+    
     data = {
         tf.contrib.timeseries.TrainEvalFeatures.TIMES: x,
         tf.contrib.timeseries.TrainEvalFeatures.VALUES: y,
