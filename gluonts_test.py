@@ -12,7 +12,7 @@ import os
 parser = argparse.ArgumentParser(description=None)
 parser.add_argument('--prediction', default=12, type=int, help='prediction length')
 parser.add_argument('--train', action='store_true', help='enter training mode')
-parser.add_argument('--epochs', default=10, type=int, help='num epochs')
+parser.add_argument('--epochs', type=int, help='num epochs')
 
 args = parser.parse_args()
 
