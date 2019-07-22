@@ -6,7 +6,7 @@ from gluonts.dataset.util import to_pandas
 import matplotlib.pyplot as plt
 import argparse
 from pathlib import Path
-from gluonts.model.predictor import Predictor
+from gluonts.model.predictor import Predictor, RepresentableBlockPredictor
 from gluonts.evaluation.backtest import make_evaluation_predictions
 import os
 
@@ -61,7 +61,8 @@ def init_model():
         predictor = estimator.train(training_data=training_data)
         predictor.serialize(Path("models/"))
     else:
-        predictor = Predictor.deserialize(Path("models/"))
+        # predictor = Predictor.deserialize(Path("models/"))
+        predictor = RepresentableBlockPredictor.deserialize(Path("models/"))
     return predictor
 
 
@@ -72,15 +73,12 @@ test_data = ListDataset(
     freq = "5min"
 )
 
-print(predictor.predict(test_data))
-
 # TODO: Fix the issue here
 forecast_it, ts_it = make_evaluation_predictions(
     dataset=test_data,  # test dataset
     predictor=predictor,  # predictor,
     num_eval_samples=100
 )
-print(forecast_it)
 forecasts = list(forecast_it)
 tss = list(ts_it)
 
