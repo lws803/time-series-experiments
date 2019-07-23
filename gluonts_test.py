@@ -56,7 +56,7 @@ def init_model():
 
     predictor = None
     if args.train:
-        my_trainer = Trainer(epochs=epochs, ctx=context) # TODO: Find a way to make it such that we do not set epoch when there is no need to
+        my_trainer = Trainer(ctx=context) # TODO: Find a way to make it such that we do not set epoch when there is no need to
         estimator = DeepAREstimator(freq="5min", prediction_length=args.prediction, trainer=my_trainer)
 
         predictor = estimator.train(training_data=training_data)
