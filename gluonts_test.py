@@ -75,28 +75,37 @@ test_data = ListDataset(
     freq = "5min"
 )
 
-# TODO: Fix the issue here
-forecast_it, ts_it = make_evaluation_predictions(
-    dataset=test_data,  # test dataset
-    predictor=predictor,  # predictor,
-    num_eval_samples=100
-)
-forecasts = list(forecast_it)
-tss = list(ts_it)
+# TODO: Find out how to manipulate this better
+# forecast_it, ts_it = make_evaluation_predictions(
+#     dataset=test_data,  # test dataset
+#     predictor=predictor,  # predictor,
+#     num_eval_samples=100
+# )
+# forecasts = list(forecast_it)
+# tss = list(ts_it)
 
-ts_entry = tss[0]
-forecast_entry = forecasts[0]
+# ts_entry = tss[0]
+# forecast_entry = forecasts[0]
 
 
-def plot_prob_forecasts(ts_entry, forecast_entry):
-    prediction_intervals = (50.0, 90.0)
-    legend = ["observations", "median prediction"] + [f"{k}% prediction interval" for k in prediction_intervals][::-1]
+# def plot_prob_forecasts(ts_entry, forecast_entry):
+#     prediction_intervals = (50.0, 90.0)
+#     legend = ["observations", "median prediction"] + [f"{k}% prediction interval" for k in prediction_intervals][::-1]
 
-    fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-    ts_entry[:].plot(ax=ax)  # plot the time series
-    forecast_entry.plot(prediction_intervals=prediction_intervals, color='g')
-    plt.grid(which="both")
-    plt.legend(legend, loc="upper left")
-    plt.show()
+#     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+#     ts_entry[:].plot(ax=ax)  # plot the time series
+#     forecast_entry.plot(prediction_intervals=prediction_intervals, color='g')
+#     plt.grid(which="both")
+#     plt.legend(legend, loc="upper left")
+#     plt.show()
 
-plot_prob_forecasts(ts_entry, forecast_entry)
+# plot_prob_forecasts(ts_entry, forecast_entry)
+
+for test_entry, forecast in zip(test_data, predictor.predict(test_data)):
+    to_pandas(test_entry)[:].plot(linewidth=2)
+    forecast.plot(color='g', 
+        prediction_intervals=[50.0, 90.0]
+        )
+
+plt.grid(which='both')
+plt.show()
