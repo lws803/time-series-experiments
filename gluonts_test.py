@@ -22,29 +22,21 @@ args = parser.parse_args()
 
 train_ratio = 0.6
 
-
-def init_data():
-    url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
-    df = pd.read_csv(url, header=0, index_col=0)
-    # df[:].plot(linewidth=2)
-    # plt.grid(which='both')
-    # plt.show()
-    list_values = []
-    for item in df.value:
-        list_values.append(item)
-    return df, list_values
+# TODO: Find another way to accept non time series data (indexed data)
+url = "https://raw.githubusercontent.com/numenta/NAB/master/data/artificialNoAnomaly/art_daily_perfect_square_wave.csv"
+df = pd.read_csv(url, header=0, index_col=0)
 
 # Make path when path does not exist
 if not os.path.exists("models"):
     os.makedirs("models")
 
 
-df, list_values = init_data()
-
+end_index = int(len(df.index)*train_ratio) - 1
 training_data = ListDataset(
-    [{"start": df.index[0], "target": list_values[:int(len(list_values)*train_ratio)]}],
+    [{"start": df.index[0], "target": df.value[:df.index[end_index]]}],
     freq = "5min"
 )
+
 
 def init_model():
     epochs = None
@@ -71,7 +63,7 @@ def init_model():
 predictor = init_model()
 
 test_data = ListDataset(
-    [{"start": df.index[0], "target": list_values[int(len(list_values)*train_ratio):]}],
+    [{"start": df.index[0], "target": df.value[df.index[end_index]:]}],
     freq = "5min"
 )
 
